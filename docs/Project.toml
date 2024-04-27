@@ -1,4 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-LibAwsCal = "51c8708f-2dd9-446d-a0d4-ba9f49ba4b23"
+LibAwsCal = "ef519ef6-af43-41a0-8ac4-eb81328190af"
 LibAwsCommon = "c6e421ba-b5f8-4792-a1c4-42948de3ed9d"
