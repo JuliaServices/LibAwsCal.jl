@@ -932,7 +932,7 @@ Documentation not found.
 """
 const aws_aes_ctr_256_new_fn = Cvoid
 
-# typedef struct aws_symmetric_cipher * ( aws_aes_gcm_256_new_fn ) ( struct aws_allocator * allocator , const struct aws_byte_cursor * key , const struct aws_byte_cursor * iv , const struct aws_byte_cursor * aad , const struct aws_byte_cursor * decryption_tag )
+# typedef struct aws_symmetric_cipher * ( aws_aes_gcm_256_new_fn ) ( struct aws_allocator * allocator , const struct aws_byte_cursor * key , const struct aws_byte_cursor * iv , const struct aws_byte_cursor * aad )
 """
 Documentation not found.
 """
@@ -943,6 +943,17 @@ const aws_aes_gcm_256_new_fn = Cvoid
 Documentation not found.
 """
 const aws_aes_keywrap_256_new_fn = Cvoid
+
+"""
+    aws_symmetric_cipher_state
+
+Documentation not found.
+"""
+@cenum aws_symmetric_cipher_state::UInt32 begin
+    AWS_SYMMETRIC_CIPHER_READY = 0
+    AWS_SYMMETRIC_CIPHER_FINALIZED = 1
+    AWS_SYMMETRIC_CIPHER_ERROR = 2
+end
 
 """
     aws_aes_cbc_256_new(allocator, key, iv)
@@ -989,7 +1000,7 @@ function aws_aes_ctr_256_new(allocator, key, iv)
 end
 
 """
-    aws_aes_gcm_256_new(allocator, key, iv, aad, decryption_tag)
+    aws_aes_gcm_256_new(allocator, key, iv, aad)
 
 Creates an instance of AES GCM with 256-bit key. If key, iv are NULL, they will be generated internally. You can get the generated key and iv back by calling:
 
@@ -997,23 +1008,21 @@ Creates an instance of AES GCM with 256-bit key. If key, iv are NULL, they will 
 
 respectively.
 
+If aad is set it will be copied and applied to the cipher.
+
 If they are set, that key and iv will be copied internally and used by the cipher.
 
-If tag and aad are set they will be copied internally and used by the cipher. decryption\\_tag would most likely be used for a decrypt operation to detect tampering or corruption. The Tag for the most recent encrypt operation will be available in:
-
-[`aws_symmetric_cipher_get_tag`](@ref)()
-
-If aad is set it will be copied and applied to the cipher.
+For decryption purposes tag can be provided via [`aws_symmetric_cipher_set_tag`](@ref) method. Note: for decrypt operations, tag must be provided before first decrypt is called. (this is a windows bcrypt limitations, but for consistency sake same limitation is extended to other platforms) Tag generated during encryption can be retrieved using [`aws_symmetric_cipher_get_tag`](@ref) method after finalize is called.
 
 Returns NULL on failure. You can check aws\\_last\\_error() to get the error code indicating the failure cause.
 
 ### Prototype
 ```c
-struct aws_symmetric_cipher *aws_aes_gcm_256_new( struct aws_allocator *allocator, const struct aws_byte_cursor *key, const struct aws_byte_cursor *iv, const struct aws_byte_cursor *aad, const struct aws_byte_cursor *decryption_tag);
+struct aws_symmetric_cipher *aws_aes_gcm_256_new( struct aws_allocator *allocator, const struct aws_byte_cursor *key, const struct aws_byte_cursor *iv, const struct aws_byte_cursor *aad);
 ```
 """
-function aws_aes_gcm_256_new(allocator, key, iv, aad, decryption_tag)
-    ccall((:aws_aes_gcm_256_new, libaws_c_cal), Ptr{aws_symmetric_cipher}, (Ptr{aws_allocator}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}), allocator, key, iv, aad, decryption_tag)
+function aws_aes_gcm_256_new(allocator, key, iv, aad)
+    ccall((:aws_aes_gcm_256_new, libaws_c_cal), Ptr{aws_symmetric_cipher}, (Ptr{aws_allocator}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}), allocator, key, iv, aad)
 end
 
 """
@@ -1121,7 +1130,9 @@ end
 """
     aws_symmetric_cipher_reset(cipher)
 
-Resets the cipher state for starting a new encrypt or decrypt operation. Note encrypt/decrypt cannot be mixed on the same cipher without a call to reset in between them. However, this leaves the key, iv etc... materials setup for immediate reuse.
+Resets the cipher state for starting a new encrypt or decrypt operation. Note encrypt/decrypt cannot be mixed on the same cipher without a call to reset in between them. However, this leaves the key, iv etc... materials setup for immediate reuse. Note: GCM tag is not preserved between operations. If you intend to do encrypt followed directly by decrypt, make sure to make a copy of tag before reseting the cipher and pass that copy for decryption.
+
+Warning: In most cases it's a really bad idea to reset a cipher and perform another operation using that cipher. Key and IV should not be reused for different operations. Instead of reseting the cipher, destroy the cipher and create new one with a new key/iv pair. Use reset at your own risk, and only after careful consideration.
 
 returns AWS\\_OP\\_SUCCESS on success. Call aws\\_last\\_error() to determine the failure cause if it returns AWS\\_OP\\_ERR;
 
@@ -1148,6 +1159,20 @@ struct aws_byte_cursor aws_symmetric_cipher_get_tag(const struct aws_symmetric_c
 """
 function aws_symmetric_cipher_get_tag(cipher)
     ccall((:aws_symmetric_cipher_get_tag, libaws_c_cal), aws_byte_cursor, (Ptr{aws_symmetric_cipher},), cipher)
+end
+
+"""
+    aws_symmetric_cipher_set_tag(cipher, tag)
+
+Sets the GMAC tag on the cipher. Does nothing for ciphers that do not support tag.
+
+### Prototype
+```c
+void aws_symmetric_cipher_set_tag(struct aws_symmetric_cipher *cipher, struct aws_byte_cursor tag);
+```
+"""
+function aws_symmetric_cipher_set_tag(cipher, tag)
+    ccall((:aws_symmetric_cipher_set_tag, libaws_c_cal), Cvoid, (Ptr{aws_symmetric_cipher}, aws_byte_cursor), cipher, tag)
 end
 
 """
@@ -1198,6 +1223,20 @@ bool aws_symmetric_cipher_is_good(const struct aws_symmetric_cipher *cipher);
 """
 function aws_symmetric_cipher_is_good(cipher)
     ccall((:aws_symmetric_cipher_is_good, libaws_c_cal), Bool, (Ptr{aws_symmetric_cipher},), cipher)
+end
+
+"""
+    aws_symmetric_cipher_get_state(cipher)
+
+Retuns the current state of the cipher. Ther state of the cipher can be ready for use, finalized, or has encountered an error. if the cipher is in a finished or error state, it must be reset before further use.
+
+### Prototype
+```c
+enum aws_symmetric_cipher_state aws_symmetric_cipher_get_state(const struct aws_symmetric_cipher *cipher);
+```
+"""
+function aws_symmetric_cipher_get_state(cipher)
+    ccall((:aws_symmetric_cipher_get_state, libaws_c_cal), aws_symmetric_cipher_state, (Ptr{aws_symmetric_cipher},), cipher)
 end
 
 """
