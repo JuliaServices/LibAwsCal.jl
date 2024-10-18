@@ -1,6 +1,7 @@
 module LibAwsCal
 
-using aws_c_cal_jll
+# using aws_c_cal_jll
+const libaws_c_cal = "/Users/jacob.quinn/aws-crt/lib/libaws-c-cal.so"
 using LibAwsCommon
 
 const IS_LIBC_MUSL = occursin("musl", Base.BUILD_TRIPLET)
