@@ -10,7 +10,7 @@ aws_c_cal_jll = "70f11efc-bab2-57f1-b0f3-22aad4e67c4b"
 [compat]
 Aqua = "0.7"
 CEnum = "0.5"
-LibAwsCommon = "1.0.0"
+LibAwsCommon = "1.2"
 aws_c_cal_jll = "=0.7.1"
 julia = "1.6"
 
