@@ -34,6 +34,7 @@ Documentation not found.
     AWS_LS_CAL_DER = 7172
     AWS_LS_CAL_LIBCRYPTO_RESOLVE = 7173
     AWS_LS_CAL_RSA = 7174
+    AWS_LS_CAL_ED25519 = 7175
     AWS_LS_CAL_LAST = 8191
 end
 
@@ -370,6 +371,117 @@ size_t aws_ecc_key_coordinate_byte_size_from_curve_name(enum aws_ecc_curve_name 
 """
 function aws_ecc_key_coordinate_byte_size_from_curve_name(curve_name)
     ccall((:aws_ecc_key_coordinate_byte_size_from_curve_name, libaws_c_cal), Csize_t, (aws_ecc_curve_name,), curve_name)
+end
+
+"""
+Documentation not found.
+"""
+mutable struct aws_ed25519_key_pair end
+
+"""
+    aws_ed25519_key_pair_new_generate(allocator)
+
+Generate new Ed25519 key. Returns a new instance of [`aws_ed25519_key_pair`](@ref) if the key was successfully generated. Otherwise returns NULL. Note: keygen is not supported on all platforms and will return NULL for the key and raise AWS\\_ERROR\\_CAL\\_UNSUPPORTED\\_ALGORITHM. Examples of unsupported cases: - openssl pre 1.1.1 (Note: aws-lc and boringssl both expose the needed functions) - win/mac builds without special flag that forces linking to libcrypto to support this
+
+### Prototype
+```c
+struct aws_ed25519_key_pair *aws_ed25519_key_pair_new_generate(struct aws_allocator *allocator);
+```
+"""
+function aws_ed25519_key_pair_new_generate(allocator)
+    ccall((:aws_ed25519_key_pair_new_generate, libaws_c_cal), Ptr{aws_ed25519_key_pair}, (Ptr{aws_allocator},), allocator)
+end
+
+"""
+    aws_ed25519_key_pair_acquire(key_pair)
+
+Adds one to an Ed25519 key pair's ref count. Returns key\\_pair pointer.
+
+### Prototype
+```c
+struct aws_ed25519_key_pair *aws_ed25519_key_pair_acquire(struct aws_ed25519_key_pair *key_pair);
+```
+"""
+function aws_ed25519_key_pair_acquire(key_pair)
+    ccall((:aws_ed25519_key_pair_acquire, libaws_c_cal), Ptr{aws_ed25519_key_pair}, (Ptr{aws_ed25519_key_pair},), key_pair)
+end
+
+"""
+    aws_ed25519_key_pair_release(key_pair)
+
+Subtracts one from an Ed25519 key pair's ref count. If ref count reaches zero, the key pair is destroyed. Always returns NULL.
+
+### Prototype
+```c
+struct aws_ed25519_key_pair *aws_ed25519_key_pair_release(struct aws_ed25519_key_pair *key_pair);
+```
+"""
+function aws_ed25519_key_pair_release(key_pair)
+    ccall((:aws_ed25519_key_pair_release, libaws_c_cal), Ptr{aws_ed25519_key_pair}, (Ptr{aws_ed25519_key_pair},), key_pair)
+end
+
+"""
+    aws_ed25519_key_export_format
+
+Documentation not found.
+"""
+@cenum aws_ed25519_key_export_format::UInt32 begin
+    AWS_CAL_ED25519_KEY_EXPORT_RAW = 0
+    AWS_CAL_ED25519_KEY_EXPORT_OPENSSH_B64 = 1
+end
+
+"""
+    aws_ed25519_key_pair_get_public_key(key_pair, format, out)
+
+Documentation not found.
+### Prototype
+```c
+int aws_ed25519_key_pair_get_public_key( const struct aws_ed25519_key_pair *key_pair, enum aws_ed25519_key_export_format format, struct aws_byte_buf *out);
+```
+"""
+function aws_ed25519_key_pair_get_public_key(key_pair, format, out)
+    ccall((:aws_ed25519_key_pair_get_public_key, libaws_c_cal), Cint, (Ptr{aws_ed25519_key_pair}, aws_ed25519_key_export_format, Ptr{aws_byte_buf}), key_pair, format, out)
+end
+
+"""
+    aws_ed25519_key_pair_get_public_key_size(format)
+
+Gets the size of the exported public key.
+
+### Prototype
+```c
+size_t aws_ed25519_key_pair_get_public_key_size(enum aws_ed25519_key_export_format format);
+```
+"""
+function aws_ed25519_key_pair_get_public_key_size(format)
+    ccall((:aws_ed25519_key_pair_get_public_key_size, libaws_c_cal), Csize_t, (aws_ed25519_key_export_format,), format)
+end
+
+"""
+    aws_ed25519_key_pair_get_private_key(key_pair, format, out)
+
+Documentation not found.
+### Prototype
+```c
+int aws_ed25519_key_pair_get_private_key( const struct aws_ed25519_key_pair *key_pair, enum aws_ed25519_key_export_format format, struct aws_byte_buf *out);
+```
+"""
+function aws_ed25519_key_pair_get_private_key(key_pair, format, out)
+    ccall((:aws_ed25519_key_pair_get_private_key, libaws_c_cal), Cint, (Ptr{aws_ed25519_key_pair}, aws_ed25519_key_export_format, Ptr{aws_byte_buf}), key_pair, format, out)
+end
+
+"""
+    aws_ed25519_key_pair_get_private_key_size(format)
+
+Gets the size of the exported private key.
+
+### Prototype
+```c
+size_t aws_ed25519_key_pair_get_private_key_size(enum aws_ed25519_key_export_format format);
+```
+"""
+function aws_ed25519_key_pair_get_private_key_size(format)
+    ccall((:aws_ed25519_key_pair_get_private_key_size, libaws_c_cal), Csize_t, (aws_ed25519_key_export_format,), format)
 end
 
 """
@@ -711,15 +823,16 @@ Documentation not found.
 """
 @cenum aws_rsa_signature_algorithm::UInt32 begin
     AWS_CAL_RSA_SIGNATURE_PKCS1_5_SHA256 = 0
-    AWS_CAL_RSA_SIGNATURE_PSS_SHA256 = 1
+    AWS_CAL_RSA_SIGNATURE_PKCS1_5_SHA1 = 1
+    AWS_CAL_RSA_SIGNATURE_PSS_SHA256 = 2
 end
 
 """
-    __JL_Ctag_50
+    __JL_Ctag_16
 
 Documentation not found.
 """
-@cenum __JL_Ctag_50::UInt32 begin
+@cenum __JL_Ctag_16::UInt32 begin
     AWS_CAL_RSA_MIN_SUPPORTED_KEY_SIZE_IN_BITS = 1024
     AWS_CAL_RSA_MAX_SUPPORTED_KEY_SIZE_IN_BITS = 4096
 end
