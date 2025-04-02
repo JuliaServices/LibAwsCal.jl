@@ -866,6 +866,20 @@ function aws_rsa_key_pair_new_from_private_key_pkcs1(allocator, key)
 end
 
 """
+    aws_rsa_key_pair_new_from_private_key_pkcs8(allocator, key)
+
+Creates an RSA private key from PrivateKeyInfo as defined in rfc 5208 (aka PKCS8). Returns a new instance of [`aws_rsa_key_pair`](@ref) if the key was successfully built. Otherwise returns NULL.
+
+### Prototype
+```c
+struct aws_rsa_key_pair *aws_rsa_key_pair_new_from_private_key_pkcs8( struct aws_allocator *allocator, struct aws_byte_cursor key);
+```
+"""
+function aws_rsa_key_pair_new_from_private_key_pkcs8(allocator, key)
+    ccall((:aws_rsa_key_pair_new_from_private_key_pkcs8, libaws_c_cal), Ptr{aws_rsa_key_pair}, (Ptr{aws_allocator}, aws_byte_cursor), allocator, key)
+end
+
+"""
     aws_rsa_key_pair_acquire(key_pair)
 
 Adds one to an RSA key pair's ref count. Returns key\\_pair pointer.
