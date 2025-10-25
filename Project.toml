@@ -1,6 +1,6 @@
 name = "LibAwsCal"
 uuid = "ef519ef6-af43-41a0-8ac4-eb81328190af"
-version = "1.1.6"
+version = "1.1.7"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
@@ -8,11 +8,12 @@ LibAwsCommon = "c6e421ba-b5f8-4792-a1c4-42948de3ed9d"
 aws_c_cal_jll = "70f11efc-bab2-57f1-b0f3-22aad4e67c4b"
 
 [compat]
-Aqua = "0.7"
+Aqua = "0.7,0.8"
 CEnum = "0.5"
 LibAwsCommon = "1.2"
-aws_c_cal_jll = "=0.9.2"
+aws_c_cal_jll = "=0.9.5"
 julia = "1.6"
+Test = "1.11"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"

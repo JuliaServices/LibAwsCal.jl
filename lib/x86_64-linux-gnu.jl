@@ -374,6 +374,57 @@ function aws_ecc_key_coordinate_byte_size_from_curve_name(curve_name)
 end
 
 """
+    aws_ecc_key_export_format
+
+Documentation not found.
+"""
+@cenum aws_ecc_key_export_format::UInt32 begin
+    AWS_CAL_ECC_KEY_EXPORT_PRIVATE_SEC1 = 0
+    AWS_CAL_ECC_KEY_EXPORT_PRIVATE_PKCS8 = 1
+    AWS_CAL_ECC_KEY_EXPORT_PUBLIC_SPKI = 2
+end
+
+"""
+    aws_ecc_key_pair_export(key_pair, format, out)
+
+Export key to a specified format. out should be initialized and have enough space for the key. returns error if export is not possible.
+
+### Prototype
+```c
+int aws_ecc_key_pair_export( const struct aws_ecc_key_pair *key_pair, enum aws_ecc_key_export_format format, struct aws_byte_buf *out);
+```
+"""
+function aws_ecc_key_pair_export(key_pair, format, out)
+    ccall((:aws_ecc_key_pair_export, libaws_c_cal), Cint, (Ptr{aws_ecc_key_pair}, aws_ecc_key_export_format, Ptr{aws_byte_buf}), key_pair, format, out)
+end
+
+"""
+    aws_ecc_decode_signature_der_to_raw(allocator, signature, out_r, out_s)
+
+Documentation not found.
+### Prototype
+```c
+int aws_ecc_decode_signature_der_to_raw( struct aws_allocator *allocator, struct aws_byte_cursor signature, struct aws_byte_cursor *out_r, struct aws_byte_cursor *out_s);
+```
+"""
+function aws_ecc_decode_signature_der_to_raw(allocator, signature, out_r, out_s)
+    ccall((:aws_ecc_decode_signature_der_to_raw, libaws_c_cal), Cint, (Ptr{aws_allocator}, aws_byte_cursor, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}), allocator, signature, out_r, out_s)
+end
+
+"""
+    aws_ecc_encode_signature_raw_to_der(allocator, r, s, out_signature)
+
+Documentation not found.
+### Prototype
+```c
+int aws_ecc_encode_signature_raw_to_der( struct aws_allocator *allocator, struct aws_byte_cursor r, struct aws_byte_cursor s, struct aws_byte_buf *out_signature);
+```
+"""
+function aws_ecc_encode_signature_raw_to_der(allocator, r, s, out_signature)
+    ccall((:aws_ecc_encode_signature_raw_to_der, libaws_c_cal), Cint, (Ptr{aws_allocator}, aws_byte_cursor, aws_byte_cursor, Ptr{aws_byte_buf}), allocator, r, s, out_signature)
+end
+
+"""
 Documentation not found.
 """
 mutable struct aws_ed25519_key_pair end
@@ -517,6 +568,20 @@ Documentation not found.
 const aws_hash_new_fn = Cvoid
 
 """
+    aws_sha512_new(allocator)
+
+Allocates and initializes a sha512 hash instance.
+
+### Prototype
+```c
+struct aws_hash *aws_sha512_new(struct aws_allocator *allocator);
+```
+"""
+function aws_sha512_new(allocator)
+    ccall((:aws_sha512_new, libaws_c_cal), Ptr{aws_hash}, (Ptr{aws_allocator},), allocator)
+end
+
+"""
     aws_sha256_new(allocator)
 
 Allocates and initializes a sha256 hash instance.
@@ -615,6 +680,20 @@ function aws_md5_compute(allocator, input, output, truncate_to)
 end
 
 """
+    aws_sha512_compute(allocator, input, output, truncate_to)
+
+Computes the sha512 hash over input and writes the digest output to 'output'. Use this if you don't need to stream the data you're hashing and you can load the entire input to hash into memory. If you specify truncate\\_to to something other than 0, the output will be truncated to that number of bytes. For example, if you want a SHA512 digest as the first 16 bytes, set truncate\\_to to 16. If you want the full digest size, just set this to 0.
+
+### Prototype
+```c
+int aws_sha512_compute( struct aws_allocator *allocator, const struct aws_byte_cursor *input, struct aws_byte_buf *output, size_t truncate_to);
+```
+"""
+function aws_sha512_compute(allocator, input, output, truncate_to)
+    ccall((:aws_sha512_compute, libaws_c_cal), Cint, (Ptr{aws_allocator}, Ptr{aws_byte_cursor}, Ptr{aws_byte_buf}, Csize_t), allocator, input, output, truncate_to)
+end
+
+"""
     aws_sha256_compute(allocator, input, output, truncate_to)
 
 Computes the sha256 hash over input and writes the digest output to 'output'. Use this if you don't need to stream the data you're hashing and you can load the entire input to hash into memory. If you specify truncate\\_to to something other than 0, the output will be truncated to that number of bytes. For example, if you want a SHA256 digest as the first 16 bytes, set truncate\\_to to 16. If you want the full digest size, just set this to 0.
@@ -654,6 +733,20 @@ void aws_set_md5_new_fn(aws_hash_new_fn *fn);
 """
 function aws_set_md5_new_fn(fn)
     ccall((:aws_set_md5_new_fn, libaws_c_cal), Cvoid, (Ptr{aws_hash_new_fn},), fn)
+end
+
+"""
+    aws_set_sha512_new_fn(fn)
+
+Set the implementation of sha512 to use. If you compiled without BYO\\_CRYPTO, you do not need to call this. However, if use this, we will honor it, regardless of compile options. This may be useful for testing purposes. If you did set BYO\\_CRYPTO, and you do not call this function you will segfault.
+
+### Prototype
+```c
+void aws_set_sha512_new_fn(aws_hash_new_fn *fn);
+```
+"""
+function aws_set_sha512_new_fn(fn)
+    ccall((:aws_set_sha512_new_fn, libaws_c_cal), Cvoid, (Ptr{aws_hash_new_fn},), fn)
 end
 
 """
@@ -731,6 +824,20 @@ function aws_sha256_hmac_new(allocator, secret)
 end
 
 """
+    aws_sha512_hmac_new(allocator, secret)
+
+Allocates and initializes a sha512 hmac instance. Secret is the key to be used for the hmac process.
+
+### Prototype
+```c
+struct aws_hmac *aws_sha512_hmac_new(struct aws_allocator *allocator, const struct aws_byte_cursor *secret);
+```
+"""
+function aws_sha512_hmac_new(allocator, secret)
+    ccall((:aws_sha512_hmac_new, libaws_c_cal), Ptr{aws_hmac}, (Ptr{aws_allocator}, Ptr{aws_byte_cursor}), allocator, secret)
+end
+
+"""
     aws_hmac_destroy(hmac)
 
 Cleans up and deallocates hmac.
@@ -787,6 +894,20 @@ function aws_sha256_hmac_compute(allocator, secret, to_hmac, output, truncate_to
 end
 
 """
+    aws_sha512_hmac_compute(allocator, secret, to_hmac, output, truncate_to)
+
+Computes the sha512 hmac over input and writes the digest output to 'output'. Use this if you don't need to stream the data you're hashing and you can load the entire input to hash into memory. If you specify truncate\\_to to something other than 0, the output will be truncated to that number of bytes. For example if you want a SHA512 HMAC digest as the first 16 bytes, set truncate\\_to to 16. If you want the full digest size, just set this to 0.
+
+### Prototype
+```c
+int aws_sha512_hmac_compute( struct aws_allocator *allocator, const struct aws_byte_cursor *secret, const struct aws_byte_cursor *to_hmac, struct aws_byte_buf *output, size_t truncate_to);
+```
+"""
+function aws_sha512_hmac_compute(allocator, secret, to_hmac, output, truncate_to)
+    ccall((:aws_sha512_hmac_compute, libaws_c_cal), Cint, (Ptr{aws_allocator}, Ptr{aws_byte_cursor}, Ptr{aws_byte_cursor}, Ptr{aws_byte_buf}, Csize_t), allocator, secret, to_hmac, output, truncate_to)
+end
+
+"""
     aws_set_sha256_hmac_new_fn(fn)
 
 Set the implementation of sha256 hmac to use. If you compiled without BYO\\_CRYPTO, you do not need to call this. However, if use this, we will honor it, regardless of compile options. This may be useful for testing purposes. If you did set BYO\\_CRYPTO, and you do not call this function you will segfault.
@@ -798,6 +919,20 @@ void aws_set_sha256_hmac_new_fn(aws_hmac_new_fn *fn);
 """
 function aws_set_sha256_hmac_new_fn(fn)
     ccall((:aws_set_sha256_hmac_new_fn, libaws_c_cal), Cvoid, (Ptr{aws_hmac_new_fn},), fn)
+end
+
+"""
+    aws_set_sha512_hmac_new_fn(fn)
+
+Set the implementation of sha256 hmac to use. If you compiled without BYO\\_CRYPTO, you do not need to call this. However, if use this, we will honor it, regardless of compile options. This may be useful for testing purposes. If you did set BYO\\_CRYPTO, and you do not call this function you will segfault.
+
+### Prototype
+```c
+void aws_set_sha512_hmac_new_fn(aws_hmac_new_fn *fn);
+```
+"""
+function aws_set_sha512_hmac_new_fn(fn)
+    ccall((:aws_set_sha512_hmac_new_fn, libaws_c_cal), Cvoid, (Ptr{aws_hmac_new_fn},), fn)
 end
 
 """
@@ -1374,6 +1509,11 @@ const AWS_C_CAL_PACKAGE_ID = 7
 """
 Documentation not found.
 """
+const AWS_SHA512_LEN = 64
+
+"""
+Documentation not found.
+"""
 const AWS_SHA256_LEN = 32
 
 """
@@ -1390,6 +1530,11 @@ const AWS_MD5_LEN = 16
 Documentation not found.
 """
 const AWS_SHA256_HMAC_LEN = 32
+
+"""
+Documentation not found.
+"""
+const AWS_SHA512_HMAC_LEN = 64
 
 """
 Documentation not found.
