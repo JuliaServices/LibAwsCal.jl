@@ -778,6 +778,48 @@ function aws_set_sha1_new_fn(fn)
 end
 
 """
+    aws_hkdf_hmac_type
+
+Only supports SHA512 hmac for now. No reason other than thats the only one we need for now.
+"""
+@cenum aws_hkdf_hmac_type::UInt32 begin
+    HKDF_HMAC_SHA512 = 0
+end
+
+"""
+    aws_hkdf_derive(allocator, hmac_type, ikm, salt, info, out_buf, length)
+
+Derive hkdf. hmac\\_type - type of hmac to use ikm - input keying material salt - salt (optional) all zeroes if not provided. info - extra info (optional). out\\_buf - must have enough capacity to fit result (i.e. have at least length left) length - length of generated key
+
+### Prototype
+```c
+int aws_hkdf_derive( struct aws_allocator *allocator, enum aws_hkdf_hmac_type hmac_type, struct aws_byte_cursor ikm, struct aws_byte_cursor salt, struct aws_byte_cursor info, struct aws_byte_buf *out_buf, size_t length);
+```
+"""
+function aws_hkdf_derive(allocator, hmac_type, ikm, salt, info, out_buf, length)
+    ccall((:aws_hkdf_derive, libaws_c_cal), Cint, (Ptr{aws_allocator}, aws_hkdf_hmac_type, aws_byte_cursor, aws_byte_cursor, aws_byte_cursor, Ptr{aws_byte_buf}, Csize_t), allocator, hmac_type, ikm, salt, info, out_buf, length)
+end
+
+# typedef int ( aws_hkdf_fn ) ( struct aws_allocator * allocator , enum aws_hkdf_hmac_type hmac_type , struct aws_byte_cursor ikm , struct aws_byte_cursor salt , struct aws_byte_cursor info , struct aws_byte_buf * out_buf , size_t length )
+"""
+Documentation not found.
+"""
+const aws_hkdf_fn = Cvoid
+
+"""
+    aws_set_hkdf_fn(fn)
+
+Documentation not found.
+### Prototype
+```c
+void aws_set_hkdf_fn(aws_hkdf_fn *fn);
+```
+"""
+function aws_set_hkdf_fn(fn)
+    ccall((:aws_set_hkdf_fn, libaws_c_cal), Cvoid, (Ptr{aws_hkdf_fn},), fn)
+end
+
+"""
     aws_hmac_vtable
 
 Documentation not found.
@@ -963,11 +1005,11 @@ Documentation not found.
 end
 
 """
-    __JL_Ctag_79
+    __JL_Ctag_86
 
 Documentation not found.
 """
-@cenum __JL_Ctag_79::UInt32 begin
+@cenum __JL_Ctag_86::UInt32 begin
     AWS_CAL_RSA_MIN_SUPPORTED_KEY_SIZE_IN_BITS = 1024
     AWS_CAL_RSA_MAX_SUPPORTED_KEY_SIZE_IN_BITS = 4096
 end
