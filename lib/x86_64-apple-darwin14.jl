@@ -412,6 +412,19 @@ function aws_ecc_decode_signature_der_to_raw(allocator, signature, out_r, out_s)
 end
 
 """
+    aws_ecc_decode_signature_der_to_raw_padded(allocator, signature, out, pad_to)
+
+Documentation not found.
+### Prototype
+```c
+int aws_ecc_decode_signature_der_to_raw_padded( struct aws_allocator *allocator, struct aws_byte_cursor signature, struct aws_byte_buf *out, size_t pad_to);
+```
+"""
+function aws_ecc_decode_signature_der_to_raw_padded(allocator, signature, out, pad_to)
+    ccall((:aws_ecc_decode_signature_der_to_raw_padded, libaws_c_cal), Cint, (Ptr{aws_allocator}, aws_byte_cursor, Ptr{aws_byte_buf}, Csize_t), allocator, signature, out, pad_to)
+end
+
+"""
     aws_ecc_encode_signature_raw_to_der(allocator, r, s, out_signature)
 
 Documentation not found.
