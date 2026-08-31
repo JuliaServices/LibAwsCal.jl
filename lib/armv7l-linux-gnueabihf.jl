@@ -220,7 +220,7 @@ end
 """
     aws_ecc_key_pair_new_from_asn1(allocator, encoded_keys)
 
-Creates an Elliptic Curve public/private key pair from a DER encoded key pair. Returns a new instance of [`aws_ecc_key_pair`](@ref) if the key was successfully built. Otherwise returns NULL. Whether or not signing or verification can be perform depends on if encoded\\_keys is a public/private pair or a public key.
+Creates an Elliptic Curve public/private key pair from a DER encoded key pair. Returns a new instance of [`aws_ecc_key_pair`](@ref) if the key was successfully built. Otherwise returns NULL. Whether or not signing or verification can be performed depends on if encoded\\_keys is a public/private pair or a public key.
 
 ### Prototype
 ```c
@@ -793,7 +793,7 @@ end
 """
     aws_hkdf_hmac_type
 
-Only supports SHA512 hmac for now. No reason other than thats the only one we need for now.
+Only supports SHA512 hmac for now. No reason other than that's the only one we need for now.
 """
 @cenum aws_hkdf_hmac_type::UInt32 begin
     HKDF_HMAC_SHA512 = 0
@@ -979,7 +979,7 @@ end
 """
     aws_set_sha512_hmac_new_fn(fn)
 
-Set the implementation of sha256 hmac to use. If you compiled without BYO\\_CRYPTO, you do not need to call this. However, if use this, we will honor it, regardless of compile options. This may be useful for testing purposes. If you did set BYO\\_CRYPTO, and you do not call this function you will segfault.
+Set the implementation of sha512 hmac to use. If you compiled without BYO\\_CRYPTO, you do not need to call this. However, if use this, we will honor it, regardless of compile options. This may be useful for testing purposes. If you did set BYO\\_CRYPTO, and you do not call this function you will segfault.
 
 ### Prototype
 ```c
@@ -1401,7 +1401,7 @@ end
 """
     aws_symmetric_cipher_finalize_encryption(cipher, out)
 
-Encrypts any remaining data that was reserved for final padding, loads GMACs etc... and if there is any writes any remaining encrypted data to out. If out is dynamic it will be expanded. If it is not, and out is not large enough to handle the decrypted output, the call will fail. If you're trying to optimize to use a stack based array or something, make sure it's at least as large as the size of 2 BLOCKs to account for padding etc...
+Encrypts any remaining data that was reserved for final padding, loads GMACs etc... and if there is any writes any remaining encrypted data to out. If out is dynamic it will be expanded. If it is not, and out is not large enough to handle the encrypted output, the call will fail. If you're trying to optimize to use a stack based array or something, make sure it's at least as large as the size of 2 BLOCKs to account for padding etc...
 
 After invoking this function, you MUST call [`aws_symmetric_cipher_reset`](@ref)() before invoking any encrypt/decrypt operations on this cipher again.
 
@@ -1437,9 +1437,9 @@ end
 """
     aws_symmetric_cipher_reset(cipher)
 
-Resets the cipher state for starting a new encrypt or decrypt operation. Note encrypt/decrypt cannot be mixed on the same cipher without a call to reset in between them. However, this leaves the key, iv etc... materials setup for immediate reuse. Note: GCM tag is not preserved between operations. If you intend to do encrypt followed directly by decrypt, make sure to make a copy of tag before reseting the cipher and pass that copy for decryption.
+Resets the cipher state for starting a new encrypt or decrypt operation. Note encrypt/decrypt cannot be mixed on the same cipher without a call to reset in between them. However, this leaves the key, iv etc... materials setup for immediate reuse. Note: GCM tag is not preserved between operations. If you intend to do encrypt followed directly by decrypt, make sure to make a copy of tag before resetting the cipher and pass that copy for decryption.
 
-Warning: In most cases it's a really bad idea to reset a cipher and perform another operation using that cipher. Key and IV should not be reused for different operations. Instead of reseting the cipher, destroy the cipher and create new one with a new key/iv pair. Use reset at your own risk, and only after careful consideration.
+Warning: In most cases it's a really bad idea to reset a cipher and perform another operation using that cipher. Key and IV should not be reused for different operations. Instead of resetting the cipher, destroy the cipher and create new one with a new key/iv pair. Use reset at your own risk, and only after careful consideration.
 
 returns AWS\\_OP\\_SUCCESS on success. Call aws\\_last\\_error() to determine the failure cause if it returns AWS\\_OP\\_ERR;
 
@@ -1487,7 +1487,7 @@ end
 
 Gets the original initialization vector as a cursor. The memory in this cursor is unsafe as it refers to the internal buffer. This was done because the use case doesn't require fetching these during an encryption or decryption operation and it dramatically simplifies the API.
 
-Unlike some other fields, this value does not change after the inital construction of the cipher.
+Unlike some other fields, this value does not change after the initial construction of the cipher.
 
 For some algorithms, such as AES Keywrap, this will return an empty cursor.
 
@@ -1507,7 +1507,7 @@ Gets the original key.
 
 The memory in this cursor is unsafe as it refers to the internal buffer. This was done because the use case doesn't require fetching these during an encryption or decryption operation and it dramatically simplifies the API.
 
-Unlike some other fields, this value does not change after the inital construction of the cipher.
+Unlike some other fields, this value does not change after the initial construction of the cipher.
 
 ### Prototype
 ```c
@@ -1535,7 +1535,7 @@ end
 """
     aws_symmetric_cipher_get_state(cipher)
 
-Retuns the current state of the cipher. Ther state of the cipher can be ready for use, finalized, or has encountered an error. if the cipher is in a finished or error state, it must be reset before further use.
+Returns the current state of the cipher. The state of the cipher can be ready for use, finalized, or has encountered an error. If the cipher is in a finished or error state, it must be reset before further use.
 
 ### Prototype
 ```c
